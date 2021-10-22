@@ -21,36 +21,19 @@ function Landing() {
                 <tbody>
                 <tr>
                     <td>
-                        <input value={roomId} onChange={(e) => setRoomId(e.target.value)} type="text" placeholder="room id"/>
+                        <input value={roomId} onChange={(e) => setRoomId(e.target.value)} type="text" placeholder="enter room id"/>
                     </td>
                     <td>
                         +
                     </td>
                     <td>
-                        <input type="text" placeholder="display name" className="ml-5"/>
+                        <input type="text" placeholder="enter display name" className="ml-5"/>
                     </td>
                     <td>
                         =
                     </td>
                     <td>
-                        <Link to={`/room/${roomId}`} className="link">Join Room</Link>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        
-                    </td>
-                    <td>
-                        
-                    </td>
-                    <td>
-                        <input type="text" placeholder="display name" className="ml-5"/>
-                    </td>
-                    <td>
-                        =
-                    </td>
-                    <td>
-                        <Link className="link">Create Room</Link>
+                        <Link to={`/room/${roomId}`} className="link">Enter</Link>
                     </td>
                 </tr>
                 </tbody>

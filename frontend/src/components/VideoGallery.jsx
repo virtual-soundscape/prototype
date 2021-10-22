@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import Peer from "simple-peer"
+import styled from 'styled-components'
 
 function VideoGallery(props) {
   const [remotes, setRemotes] = useState([]);
@@ -8,20 +9,23 @@ function VideoGallery(props) {
 
   const remotesRef = useRef([]);
 
-  const Video = (props) => {
-    const ref = useRef();
+  const StyledVideo = styled.video`
+  height: 40%;
+  width: 50%;
+`;
 
-    useEffect(() => {
-        props.remote.on("stream", stream => {
-            ref.current.srcObject = stream;
-        })
-    }, []);
+const Video = (props) => {
+  const ref = useRef();
 
-    return (
-        <video autoPlay>
-          <source src={ref}/>
-        </video>
-    );
+  useEffect(() => {
+      props.remote.on("stream", stream => {
+          ref.current.srcObject = stream;
+      })
+  }, []);
+
+  return (
+      <StyledVideo playsInline autoPlay ref={ref} />
+  );
 }
 
   useEffect(() => {
@@ -61,6 +65,7 @@ function VideoGallery(props) {
   }, [])
 
   const createRemote = (user, callerId, stream) => {
+    console.log("creating")
     const peer = new Peer({
       intiator: true,
       trickle:false,
@@ -76,6 +81,7 @@ function VideoGallery(props) {
   }
 
   const addRemote = (newSignal, callerId, stream) => {
+    console.log("adding")
     const peer = new Peer({
       intiator: false,
       trickle:false,
@@ -94,12 +100,12 @@ function VideoGallery(props) {
 
   return (
     <div>
-      <video autoPlay muted id="localVideo" width="75%"></video>
-      {remotes.map((remote, index) => {
+      <StyledVideo autoPlay muted id="localVideo" width="75%"></StyledVideo>
+      {remotes.length > 0 ? remotes.map((remote, index) => {
         return (
           <Video key={index} id={index} remote={remote}></Video>
         )
-      })}
+      }) : null}
       <div>
           
         <div>
