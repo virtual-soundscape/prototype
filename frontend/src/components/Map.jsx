@@ -4,6 +4,7 @@ import io from 'socket.io-client';
 
 export default class Map extends React.Component {
     constructor(props){
+
         super(props)
         this.state = {
             user_id:"",
@@ -15,10 +16,7 @@ export default class Map extends React.Component {
             containerWidth: 500,
             containerHeight:500,
             users:{}
-            
-
         }
-        this.socket = io.connect("http://localhost:8080")
         
     }
         
@@ -26,14 +24,14 @@ export default class Map extends React.Component {
 
     //virtual map and user setup
     componentDidMount(){
-        this.socket.emit("newUser", this.state.room_id)
-        this.socket.on("local", (user_id) =>{
+                
+        this.props.socket.on("local", (user_id) =>{
             console.log(user_id)
             this.setState({
                 user_id: user_id
             })
         })
-        this.socket.on("moving", (userData) => {
+        this.props.socket.on("moving", (userData) => {
             
                 this.setState((prevState) => {
                     var placeholder = {
@@ -41,21 +39,37 @@ export default class Map extends React.Component {
                     };
                     placeholder[userData.user_id] = [userData.x, userData.y];
                     return {
-                        users: { 
-                            ...placeholder
-                        } 
+                        users: placeholder
                     }
                 })
                 var canvas = document.getElementById('map');
                 var ctx = canvas.getContext('2d');
                 ctx.clearRect(0, 0, this.state.containerWidth, this.state.containerHeight)
-                console.log(this.state.users)
+                
                 for(var key in this.state.users){
                     ctx.beginPath();
                     ctx.rect(this.state.users[key][0], this.state.users[key][1], 10, 10);
                     ctx.stroke();
                 }   
 
+        })
+        this.props.socket.on("userDisconnect", (discUserId) => {
+            this.setState((prevState) => {
+                var newUsers = prevState.users;
+                delete newUsers[discUserId]
+                return{
+                    users: newUsers
+                }
+            })
+            var canvas = document.getElementById('map');
+            var ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, this.state.containerWidth, this.state.containerHeight)
+                
+            for(var key in this.state.users){
+                ctx.beginPath();
+                ctx.rect(this.state.users[key][0], this.state.users[key][1], 10, 10);
+                ctx.stroke();
+            }   
         })
         var canvas = document.getElementById("map");
         var ctx = canvas.getContext("2d");
@@ -137,7 +151,6 @@ export default class Map extends React.Component {
             })
 
             for(var key in this.state.users){
-                console.log(key)
                 ctx.beginPath();
                 ctx.rect(this.state.users[key][0], this.state.users[key][1], 10, 10);
                 ctx.stroke();
@@ -151,7 +164,7 @@ export default class Map extends React.Component {
             };
 
             //var base64ImageData = canvas.toDataURL("image/png");
-            this.socket.emit("moving", this.state.room_id, userData);
+            this.props.socket.emit("moving", this.state.room_id, userData);
         }    
     }
 

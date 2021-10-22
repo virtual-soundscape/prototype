@@ -3,10 +3,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import Peer from "simple-peer"
 import io from 'socket.io-client'
 
-const socket = io.connect("http://localhost:8080")
-
-function VideoGallery() {
-
+function VideoGallery(props) {
+  
   const [localId, setLocalId] = useState("")
   const [stream, setStream] = useState()
   const [receiving, setReceiving] = useState(false)
@@ -28,11 +26,11 @@ function VideoGallery() {
       localVideo.srcObject = stream
     })
 
-    socket.on("local", (id) => {
+    props.socket.on("local", (id) => {
       setLocalId(id)
     })
 
-    socket.on("call", (data) => {
+    props.socket.on("call", (data) => {
       setReceiving(true)
       setCallerId(data.caller)
       setName(data.receiver)
@@ -48,7 +46,7 @@ function VideoGallery() {
     })
 
     peer.on("signal", (data) => {
-      socket.emit("call", {
+      props.socket.emit("call", {
         userToCall: id,
         signalData: data,
         caller: localId,
@@ -62,7 +60,7 @@ function VideoGallery() {
       remoteVideo.srcObject = stream
     })
 
-    socket.on("accepted", (signal) => {
+    props.socket.on("accepted", (signal) => {
       setAccepted(true)
       peer.signal(signal)
     })
@@ -79,7 +77,7 @@ function VideoGallery() {
     })
 
     peer.on("signal", (data) => {
-      socket.emit("answer", {
+      props.socket.emit("answer", {
         signal: data,
         to: callerId
       })
