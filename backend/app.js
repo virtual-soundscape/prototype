@@ -16,24 +16,35 @@ io.on("connection", (socket) => {
     socket.emit("local", socket.id)
     socket.on("newUser", (room_id) => {
         socket.join(room_id)
-    })
+        if(users[room_id]) {
+            const length = users[roomId].length;
+            if (length >= 8 ) {
+                socket.emit("room full")
+                return
+            }
+            users[roomId].push(socket.id);
+        } else {
+            users[roomId] = [socket.id];
+        }
+        socketToRoom[socket.id] = roomId;
+        const existingUsers = users[roomId].filter((id) => id !== socket.id)
+        socket.emit("allUsers", existingUsers)
+    });
 
     //Moving
     socket.on('moving', (room_id, userData)=> {
         socket.to(room_id).emit('moving', userData);
     })
+    
+    //Sending Signal
+    socket.on("sending signal", data => {
+        io.to(data.user).emit('joinUser', { signal: data.signal, callerId: data.callerId });
+    });
 
-    //Call
-    socket.on("call", (room_id, data) => {
-        socket.to(room_id).emit("call", {
-            signal: data.signalData, caller: data.caller, receiver: data.name
-        })
-    })
-
-    //Answer
-    socket.on("answer", (room_id, data) => {
-        socket.to(room_id).emit("accepted", data.signal)
-    })
+    //Returning Signal
+    socket.on("returning signal", (data) => {
+        io.to(data.callerId).emit('receiving returned signal', { signal: data.signal, id: socket.id });
+    });
 
     //End
     socket.on("exit", (room_id) => {
