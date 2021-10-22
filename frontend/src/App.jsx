@@ -1,13 +1,17 @@
-import './App.css';
-import VideoGallery from './components/VideoGallery';
-import Map from "./components/Map"
+import { BrowserRouter as Router, Route } from "react-router-dom";
+
+import Landing from './pages/Landing';
+import Room from './pages/Room'
 
 function App() {
   return (
-    <div className="App">
-      <Map/>
-      <VideoGallery/>
+    <Router>
+    <div>
+      <Route exact path="/" component={Landing}/>
+      <Route path="/room" component={Room}/>
     </div>
+  </Router>
+
   );
 }
 
