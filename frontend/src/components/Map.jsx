@@ -15,6 +15,7 @@ export default class Map extends React.Component {
             y: 250,
             containerWidth: 1500,
             containerHeight:900,
+            avatarColor: '#' + Math.floor(Math.random()*16777215).toString(16),
             avatarWidth: 10,
             avatarHeight: 10,
             users:{}
@@ -26,7 +27,6 @@ export default class Map extends React.Component {
 
     //virtual map and user setup
     componentDidMount(){
-
         this.props.socket.on("local", (user_id) =>{
             console.log(user_id)
             this.setState({
@@ -34,12 +34,12 @@ export default class Map extends React.Component {
             })
         })
         this.props.socket.on("moving", (userData) => {
-            
+                console.log("SOCKETs")
                 this.setState((prevState) => {
                     var placeholder = {
                         ...prevState.users
                     };
-                    placeholder[userData.user_id] = [userData.x, userData.y];
+                    placeholder[userData.user_id] = [userData.x, userData.y, userData.avatarColor];
                     return {
                         users: placeholder
                     }
@@ -50,7 +50,8 @@ export default class Map extends React.Component {
                 
                 for(var key in this.state.users){
                     ctx.beginPath();
-                    ctx.rect(this.state.users[key][0], this.state.users[key][1], this.state.avatarWidth, this.state.avatarHeight);
+                    ctx.fillStyle = this.state.users[key][2]
+                    ctx.fillRect(this.state.users[key][0], this.state.users[key][1], this.state.avatarWidth, this.state.avatarHeight);
                     ctx.stroke();
                 }   
 
@@ -69,7 +70,8 @@ export default class Map extends React.Component {
                 
             for(var key in this.state.users){
                 ctx.beginPath();
-                ctx.rect(this.state.users[key][0], this.state.users[key][1], this.state.avatarWidth, this.state.avatarHeight);
+                ctx.fillStyle = this.state.users[key][2]
+                ctx.fillRect(this.state.users[key][0], this.state.users[key][1], this.state.avatarWidth, this.state.avatarHeight);
                 ctx.stroke();
             }   
         })
@@ -78,7 +80,8 @@ export default class Map extends React.Component {
         canvas.width = this.state.containerWidth;
         canvas.height = this.state.containerHeight;
         ctx.beginPath();
-        ctx.rect(this.state.x, this.state.y, this.state.avatarWidth, this.state.avatarHeight);
+        ctx.fillStyle = this.state.avatarColor;
+        ctx.fillRect(this.state.x, this.state.y, this.state.avatarWidth, this.state.avatarHeight);
         ctx.stroke();
         this.init()
     }
@@ -152,7 +155,7 @@ export default class Map extends React.Component {
                 var placeholder = {
                     ...prevState.users
                 };
-                placeholder[prevState.user_id] = [prevState.x, prevState.y];
+                placeholder[prevState.user_id] = [prevState.x, prevState.y, prevState.avatarColor];
                 return {
                     users: { 
                         ...placeholder
@@ -162,7 +165,8 @@ export default class Map extends React.Component {
 
             for(var key in this.state.users){
                 ctx.beginPath();
-                ctx.rect(this.state.users[key][0], this.state.users[key][1], this.state.avatarWidth, this.state.avatarHeight);
+                ctx.fillStyle = this.state.users[key][2];
+                ctx.fillRect(this.state.users[key][0], this.state.users[key][1], this.state.avatarWidth, this.state.avatarHeight);
                 ctx.stroke();
             }
 
@@ -170,7 +174,8 @@ export default class Map extends React.Component {
             var userData = {
                 user_id: this.state.user_id,
                 x: this.state.x,
-                y: this.state.y
+                y: this.state.y,
+                avatarColor: this.state.avatarColor
             };
 
             //var base64ImageData = canvas.toDataURL("image/png");
