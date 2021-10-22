@@ -1,9 +1,13 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Landing.css'
-
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom'
 
 function Landing() {
+
+    const [roomId, setRoomId] = useState("");
+
+
   return (
     <div className="container-fluid d-flex">
         <div className="row p-5">
@@ -16,7 +20,7 @@ function Landing() {
             <table>
                 <tr>
                     <td>
-                        <input type="text" placeholder="room id"/>
+                        <input value={roomId} onChange={(e) => setRoomId(e.target.value)} type="text" placeholder="room id"/>
                     </td>
                     <td>
                         +
@@ -28,7 +32,7 @@ function Landing() {
                         =
                     </td>
                     <td>
-                        <Link className="link">Join Room</Link>
+                        <Link to={`/room/${roomId}`} className="link">Join Room</Link>
                     </td>
                 </tr>
                 <tr>

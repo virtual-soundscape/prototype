@@ -7,7 +7,7 @@ export default class Map extends React.Component {
         super(props)
         this.state = {
             user_id:"",
-            room_id: "",
+            room_id: this.props.roomId,
             moving: false,
             direction: 'N',
             x: 250,
@@ -26,6 +26,7 @@ export default class Map extends React.Component {
 
     //virtual map and user setup
     componentDidMount(){
+        this.socket.emit("newUser", this.state.room_id)
         this.socket.on("local", (user_id) =>{
             console.log(user_id)
             this.setState({
@@ -150,7 +151,7 @@ export default class Map extends React.Component {
             };
 
             //var base64ImageData = canvas.toDataURL("image/png");
-            this.socket.emit("moving", userData);
+            this.socket.emit("moving", this.state.room_id, userData);
         }    
     }
 
