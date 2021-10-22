@@ -5,11 +5,11 @@ import { Link } from 'react-router-dom'
 
 function Landing() {
   return (
-    <div className="container-fluid d-flex">
+    <div className="container-fluid d-flex landing">
         <div className="row p-5">
             <div className="row p-3">
                 <h2>
-                    Soundscape creates a virtual room connecting users via video and audio chat. Move about in the room using w,a,s,d to alter your chat based on your proximity to other users.
+                    Soundscape creates a virtual room connecting users via video and audio chat. Move around in the room using w,a,s,d to alter your chat based on your proximity to other users.
                 </h2>
             </div>
             <div className="row p-3 mt-5">

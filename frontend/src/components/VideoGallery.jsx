@@ -8,14 +8,12 @@ const socket = io.connect("http://localhost:8080")
 function VideoGallery() {
 
   const [localId, setLocalId] = useState("")
-  const [stream, setStream] = useState()
-  const [receiving, setReceiving] = useState(false)
-  const [callerId, setCallerId] = useState("")
-  const [callerSignal, setCallerSignal] = useState()
-  const [accepted, setAccepted] = useState(false)
-  const [receiverId, setReceiverId] = useState("")
-  const [end, setEnd] = useState(false)
   const [name, setName] = useState("")
+  const [localStream, setLocalStream] = useState()
+  const [remoteStream, setRemoteStream] = useState([])
+  const [roomId, setRoomId] = useState("")
+  const [roomSignal, setroomSignal] = useState()
+  const [end, setEnd] = useState(false)
 
   const connectionRef = useRef()
 
@@ -23,9 +21,9 @@ function VideoGallery() {
   useEffect(() => {
     navigator.mediaDevices.getUserMedia({video: true, audio: true})
     .then((stream) => {
-      setStream(stream)
+      setLocalStream(stream)
       const localVideo = document.getElementById("localVideo")
-      localVideo.srcObject = stream
+      localVideo.srcObject = localStream
     })
 
     socket.on("local", (id) => {
