@@ -13,29 +13,30 @@ const io = require("socket.io")(server, {
 io.on("connection", (socket) => {
     
     socket.emit("local", socket.id)
+    socket.on("newUser", (room_id) => {
+        socket.join(room_id)
+    })
 
     //Moving
-    socket.on('moving', (userData)=> {
-        
-        console.log(userData)
-        socket.broadcast.emit('moving', userData);
+    socket.on('moving', (room_id, userData)=> {
+        socket.to(room_id).emit('moving', userData);
     })
 
     //Call
-    socket.on("call", (data) => {
-        io.to(data.userToCall).emit("call", {
+    socket.on("call", (room_id, data) => {
+        socket.to(room_id).emit("call", {
             signal: data.signalData, caller: data.caller, receiver: data.name
         })
     })
 
     //Answer
-    socket.on("answer", (data) => {
-        io.to(data.to).emit("accepted", data.signal)
+    socket.on("answer", (room_id, data) => {
+        socket.to(room_id).emit("accepted", data.signal)
     })
 
     //End
-    socket.on("end", () => {
-        socket.broadcast.emit("disconnected")
+    socket.on("end", (room_id) => {
+        socket.to(room_id).emit("disconnected")
     })
 
 })
