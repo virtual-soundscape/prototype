@@ -7,6 +7,7 @@ export default class Map extends React.Component {
         super(props)
         this.state = {
             user_id:"",
+            room_id: "",
             moving: false,
             direction: 'N',
             x: 250,
