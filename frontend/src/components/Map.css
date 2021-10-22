@@ -1,0 +1,15 @@
+#frame{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    
+}
+
+#container{
+    border-style: solid;
+    border-width: 10px;
+    
+}
+
+
