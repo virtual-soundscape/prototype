@@ -10,11 +10,12 @@ const io = require("socket.io")(server, {
     }
 })
 
+const socketIdToRoomId = new Map();
 
 io.on("connection", (socket) => {
-
     socket.emit("local", socket.id)
     socket.on("newUser", (room_id) => {
+        socketIdToRoomId.set(socket.id, room_id);
         socket.join(room_id)
     })
 
@@ -37,6 +38,7 @@ io.on("connection", (socket) => {
 
     //End
     socket.on("exit", (room_id) => {
+        socketIdToRoomId.delete(socket.id);
         socket.io(room_id).emit("userDisconnect", socket.id)
         socket.to(room_id).emit("disconnected")
     })
@@ -44,7 +46,9 @@ io.on("connection", (socket) => {
     //disconnect
     socket.on("disconnect", () => {
         console.log("User Force Disconnected")
-        
+        const roomId = socketIdToRoomId.get(socket.id);
+        io.to(roomId).emit("userDisconnect", socket.id);
+        socketIdToRoomId.delete(socket.id);
     })
 
 })
