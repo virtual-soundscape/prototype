@@ -12,13 +12,15 @@ function VideoGallery(props) {
     const ref = useRef();
 
     useEffect(() => {
-        props.peer.on("stream", stream => {
+        props.remote.on("stream", stream => {
             ref.current.srcObject = stream;
         })
     }, []);
 
     return (
-        <video playsInline autoPlay ref={ref} />
+        <video autoPlay>
+          <source src={ref}/>
+        </video>
     );
 }
 
@@ -95,16 +97,13 @@ function VideoGallery(props) {
       <video autoPlay muted id="localVideo" width="75%"></video>
       {remotes.map((remote, index) => {
         return (
-          <Video key={index} remote={remote}></Video>
+          <Video key={index} id={index} remote={remote}></Video>
         )
       })}
       <div>
           
         <div>
-        <button onClick={() =>  navigator.clipboard.writeText(roomId)}>Copy Your ID</button>
-        		{/* <button onClick={leaveCall}>
-							End Call
-						</button> */}
+        <button onClick={() =>  navigator.clipboard.writeText(roomId)}>Copy Room ID</button>
 			</div>
       </div>
     </div>

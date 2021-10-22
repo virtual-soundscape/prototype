@@ -10,6 +10,9 @@ const io = require("socket.io")(server, {
     }
 })
 
+const users = {};
+
+const socketToRoom = {};
 
 io.on("connection", (socket) => {
 
@@ -17,17 +20,18 @@ io.on("connection", (socket) => {
     socket.on("newUser", (room_id) => {
         socket.join(room_id)
         if(users[room_id]) {
-            const length = users[roomId].length;
+            const length = users[room_id].length;
             if (length >= 8 ) {
                 socket.emit("room full")
                 return
             }
-            users[roomId].push(socket.id);
+            users[room_id].push(socket.id);
         } else {
-            users[roomId] = [socket.id];
+            users[room_id] = [socket.id];
         }
-        socketToRoom[socket.id] = roomId;
-        const existingUsers = users[roomId].filter((id) => id !== socket.id)
+        socketToRoom[socket.id] = room_id;
+        const existingUsers = users[room_id].filter((id) => id !== socket.id)
+        console.log("existinUsers", existingUsers)
         socket.emit("allUsers", existingUsers)
     });
 

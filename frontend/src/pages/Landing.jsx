@@ -18,6 +18,7 @@ function Landing() {
             </div>
             <div className="row p-3 mt-5">
             <table>
+                <tbody>
                 <tr>
                     <td>
                         <input value={roomId} onChange={(e) => setRoomId(e.target.value)} type="text" placeholder="room id"/>
@@ -52,6 +53,7 @@ function Landing() {
                         <Link className="link">Create Room</Link>
                     </td>
                 </tr>
+                </tbody>
             </table>
             </div>
         </div>
