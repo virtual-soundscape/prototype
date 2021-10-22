@@ -13,8 +13,10 @@ export default class Map extends React.Component {
             direction: 'N',
             x: 250,
             y: 250,
-            containerWidth: 500,
-            containerHeight:500,
+            containerWidth: 1500,
+            containerHeight:900,
+            avatarWidth: 10,
+            avatarHeight: 10,
             users:{}
         }
         
@@ -24,7 +26,7 @@ export default class Map extends React.Component {
 
     //virtual map and user setup
     componentDidMount(){
-                
+
         this.props.socket.on("local", (user_id) =>{
             console.log(user_id)
             this.setState({
@@ -48,7 +50,7 @@ export default class Map extends React.Component {
                 
                 for(var key in this.state.users){
                     ctx.beginPath();
-                    ctx.rect(this.state.users[key][0], this.state.users[key][1], 10, 10);
+                    ctx.rect(this.state.users[key][0], this.state.users[key][1], this.state.avatarWidth, this.state.avatarHeight);
                     ctx.stroke();
                 }   
 
@@ -67,7 +69,7 @@ export default class Map extends React.Component {
                 
             for(var key in this.state.users){
                 ctx.beginPath();
-                ctx.rect(this.state.users[key][0], this.state.users[key][1], 10, 10);
+                ctx.rect(this.state.users[key][0], this.state.users[key][1], this.state.avatarWidth, this.state.avatarHeight);
                 ctx.stroke();
             }   
         })
@@ -76,7 +78,7 @@ export default class Map extends React.Component {
         canvas.width = this.state.containerWidth;
         canvas.height = this.state.containerHeight;
         ctx.beginPath();
-        ctx.rect(this.state.x, this.state.y, 10, 10);
+        ctx.rect(this.state.x, this.state.y, this.state.avatarWidth, this.state.avatarHeight);
         ctx.stroke();
         this.init()
     }
@@ -104,7 +106,9 @@ export default class Map extends React.Component {
             if(this.state.direction === 'N'){
                 this.setState((prevState) => {
                     var currentStateY = prevState.y - 5;
-                
+                    if(currentStateY < 0){
+                        currentStateY = 0;
+                    }
                     return{
                         y: currentStateY
                     }
@@ -113,7 +117,9 @@ export default class Map extends React.Component {
             else if (this.state.direction === 'W'){
                 this.setState((prevState) => {
                     var currentStateX = prevState.x - 5;
-                
+                    if(currentStateX < 0){
+                        currentStateX = 0;
+                    }
                     return{
                         x: currentStateX
                     }
@@ -122,7 +128,9 @@ export default class Map extends React.Component {
             else if (this.state.direction === 'S'){
                 this.setState((prevState) => {
                     var currentStateY = prevState.y + 5;
-                
+                    if(currentStateY > prevState.containerHeight - prevState.avatarHeight){
+                        currentStateY = prevState.containerHeight - prevState.avatarHeight;
+                    }
                     return{
                         y: currentStateY
                     }
@@ -131,7 +139,9 @@ export default class Map extends React.Component {
             else if (this.state.direction === 'E'){
                 this.setState((prevState) => {
                     var currentStateX = prevState.x + 5;
-                
+                    if(currentStateX > prevState.containerWidth - prevState.avatarWidth){
+                        currentStateX = prevState.containerWidth - prevState.avatarWidth;
+                    }
                     return{
                         x: currentStateX
                     }
@@ -152,7 +162,7 @@ export default class Map extends React.Component {
 
             for(var key in this.state.users){
                 ctx.beginPath();
-                ctx.rect(this.state.users[key][0], this.state.users[key][1], 10, 10);
+                ctx.rect(this.state.users[key][0], this.state.users[key][1], this.state.avatarWidth, this.state.avatarHeight);
                 ctx.stroke();
             }
 

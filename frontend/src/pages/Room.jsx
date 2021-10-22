@@ -1,3 +1,4 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { useParams } from "react-router";
 import Map from "../components/Map";
 import VideoGallery from "../components/VideoGallery";
@@ -12,10 +13,14 @@ function Room() {
 
     return (
       <div className="container-fluid">
-          <div>
+        <div className="row">
+          <div className="col-10">
             <Map socket={socket} roomId={id}/>
+          </div>
+          <div className="col-2">
             <VideoGallery socket={socket} roomId={id} />
           </div>
+        </div>
       </div>
     );
   }
