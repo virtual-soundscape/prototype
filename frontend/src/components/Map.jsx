@@ -18,25 +18,21 @@ export default class Map extends React.Component {
 
         }
         this.socket = io.connect("http://localhost:8080")
+        
+    }
+        
+    
 
+    //virtual map and user setup
+    componentDidMount(){
         this.socket.on("local", (user_id) =>{
+            console.log(user_id)
             this.setState({
                 user_id: user_id
             })
         })
         this.socket.on("moving", (userData) => {
             
-            // var image = new Image();
-            // image.src = data;
-            // var canvas = document.getElementById('map');
-            // var ctx = canvas.getContext('2d');
-            // ctx.clearRect(0, 0, this.state.containerWidth, this.state.containerHeight);
-            // image.onload = function () {
-            //     ctx.drawImage(image, 0, 0);
-            // };
-                console.log("LOL", this.state.user_id)
-                if(!(this.state.user_id == userData.user_id)){
-                console.log("HELLO", this.state.users)
                 this.setState((prevState) => {
                     var placeholder = {
                         ...prevState.users
@@ -48,26 +44,17 @@ export default class Map extends React.Component {
                         } 
                     }
                 })
-                
                 var canvas = document.getElementById('map');
                 var ctx = canvas.getContext('2d');
                 ctx.clearRect(0, 0, this.state.containerWidth, this.state.containerHeight)
                 console.log(this.state.users)
                 for(var key in this.state.users){
-                    console.log("key")
                     ctx.beginPath();
                     ctx.rect(this.state.users[key][0], this.state.users[key][1], 10, 10);
                     ctx.stroke();
-                }
-            }
+                }   
 
         })
-    }
-        
-    
-
-    //virtual map and user setup
-    componentDidMount(){
         var canvas = document.getElementById("map");
         var ctx = canvas.getContext("2d");
         canvas.width = this.state.containerWidth;
@@ -134,9 +121,7 @@ export default class Map extends React.Component {
                     }
                 })
             }
-            // ctx.beginPath();
-            // ctx.rect(this.state.x, this.state.y, 10, 10);
-            // ctx.stroke();
+            
             this.setState((prevState) => {
                 var placeholder = {
                     ...prevState.users
@@ -158,7 +143,7 @@ export default class Map extends React.Component {
 
 
             var userData = {
-                user_id: 2,
+                user_id: this.state.user_id,
                 x: this.state.x,
                 y: this.state.y
             };
