@@ -20,20 +20,13 @@ io.on("connection", (socket) => {
         socket.broadcast.emit('moving', userData);
     })
 
-    //Call
-    socket.on("call", (data) => {
-        io.to(data.userToCall).emit("call", {
-            signal: data.signalData, caller: data.caller, receiver: data.name
-        })
-    })
-
-    //Answer
-    socket.on("answer", (data) => {
+    //Enter
+    socket.on("enter", (data) => {
         io.to(data.to).emit("accepted", data.signal)
     })
 
-    //End
-    socket.on("end", () => {
+    //Exit
+    socket.on("exit", () => {
         socket.broadcast.emit("disconnected")
     })
 
