@@ -10,7 +10,6 @@ function Room() {
   const { id } = useParams();
   const socket = io.connect("http://localhost:8080")
   socket.emit("newUser", id)
-  
 
     return (
       <div id="container" className="container-fluid">
