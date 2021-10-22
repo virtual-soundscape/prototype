@@ -34,12 +34,13 @@ export default class Map extends React.Component {
             })
         })
         this.props.socket.on("moving", (userData) => {
-                console.log("SOCKETs")
+                
                 this.setState((prevState) => {
                     var placeholder = {
                         ...prevState.users
                     };
-                    placeholder[userData.user_id] = [userData.x, userData.y, userData.avatarColor];
+                    var distance = Math.sqrt((prevState.x - userData.x)**2 + (prevState.y - userData.y)**2);
+                    placeholder[userData.user_id] = [userData.x, userData.y, userData.avatarColor, distance];
                     return {
                         users: placeholder
                     }
@@ -54,6 +55,7 @@ export default class Map extends React.Component {
                     ctx.fillRect(this.state.users[key][0], this.state.users[key][1], this.state.avatarWidth, this.state.avatarHeight);
                     ctx.stroke();
                 }   
+                console.log(this.state.users)
 
         })
         this.props.socket.on("userDisconnect", (discUserId) => {
@@ -157,9 +159,20 @@ export default class Map extends React.Component {
                 };
                 placeholder[prevState.user_id] = [prevState.x, prevState.y, prevState.avatarColor];
                 return {
-                    users: { 
-                        ...placeholder
-                    } 
+                    users: placeholder
+                }
+            })
+
+            this.setState((prevState) => {
+                var placeholder = {
+                    ...prevState.users
+                };
+                for (var key in placeholder){
+                    var distance = Math.sqrt((prevState.x - placeholder[key][0])**2 + (prevState.y - placeholder[key][1])**2)
+                    placeholder[key] = [placeholder[key][0], placeholder[key][1], placeholder[key][2], distance];
+                }
+                return {
+                    users: placeholder
                 }
             })
 
@@ -169,7 +182,7 @@ export default class Map extends React.Component {
                 ctx.fillRect(this.state.users[key][0], this.state.users[key][1], this.state.avatarWidth, this.state.avatarHeight);
                 ctx.stroke();
             }
-
+            console.log(this.state.users)
 
             var userData = {
                 user_id: this.state.user_id,
