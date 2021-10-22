@@ -10,8 +10,9 @@ const io = require("socket.io")(server, {
     }
 })
 
+
 io.on("connection", (socket) => {
-    
+
     socket.emit("local", socket.id)
     socket.on("newUser", (room_id) => {
         socket.join(room_id)
@@ -35,8 +36,15 @@ io.on("connection", (socket) => {
     })
 
     //End
-    socket.on("end", (room_id) => {
+    socket.on("exit", (room_id) => {
+        socket.io(room_id).emit("userDisconnect", socket.id)
         socket.to(room_id).emit("disconnected")
+    })
+    
+    //disconnect
+    socket.on("disconnect", () => {
+        console.log("User Force Disconnected")
+        
     })
 
 })
