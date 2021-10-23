@@ -18,9 +18,7 @@ function Video({ remote, id }) {
   }, []);
 
   return (
-    <div>
-      <video id={videoDOMElementId} playsInline autoPlay width="75%" />
-    </div>
+      <video id={videoDOMElementId} playsInline autoPlay className="w-100"/>
   );
 }
 
@@ -138,16 +136,19 @@ function VideoGallery({ socket, roomId }) {
         autoPlay
         muted 
         id="localVideo"
-        width="75%"
+        className="w-100"
       />
 
       {remotes.map(({ remote }, index) => {
         return (
-          <video key={index} id={index} remote={remote}></video>
+          <Video key={index} id={index} remote={remote}></Video>
         )
       })}
       <div>    
-        <button onClick={() =>  navigator.clipboard.writeText(roomId)}>Copy Room ID</button>
+        <button className="w-100 border-0" onClick={() =>  navigator.clipboard.writeText("https://virtual-soundscape.herokuapp.com/room/" + roomId)}>Share Room</button>
+      </div>
+      <div>    
+      <button className="mt-2 w-100 border-0" onClick={() => {window.location.href = "https://virtual-soundscape.herokuapp.com/"}}>Leave</button>
       </div>
     </div>
   );
