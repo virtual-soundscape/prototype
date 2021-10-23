@@ -5,20 +5,35 @@ import io from 'socket.io-client';
 export default class Map extends React.Component {
     constructor(props){
 
-        super(props)
+        super(props);
+
+        const initialCoordinates = {
+            x: 250,
+            y: 250,
+        };
+        const avatarColor = `#${Math.floor(Math.random()*16777215).toString(16)}`;
+
         this.state = {
-            user_id:"",
+            user_id: this.props.userId,
             room_id: this.props.roomId,
             moving: false,
             direction: 'N',
-            x: 250,
-            y: 250,
+            ...initialCoordinates,
             containerWidth: 1500,
             containerHeight:900,
-            avatarColor: '#' + Math.floor(Math.random()*16777215).toString(16),
+            avatarColor,
             avatarWidth: 10,
             avatarHeight: 10,
-            users:{}
+            users:{
+                [this.props.userId]: [
+                    initialCoordinates.x,
+                    initialCoordinates.y,
+                    avatarColor,
+                ]
+            },
+
+            // Handler returned by `requestAnimationFrame`
+            rafHandler: undefined,
         }
         
     }
@@ -27,13 +42,8 @@ export default class Map extends React.Component {
 
     //virtual map and user setup
     componentDidMount(){
-        this.props.socket.on("local", (user_id) =>{
-            console.log(user_id)
-            this.setState({
-                user_id: user_id
-            })
-        })
         this.props.socket.on("moving", (userData) => {
+            console.log(`moving: ${userData}`);
                 
                 this.setState((prevState) => {
                     var placeholder = {
@@ -59,23 +69,29 @@ export default class Map extends React.Component {
 
         })
         this.props.socket.on("userDisconnect", (discUserId) => {
-            this.setState((prevState) => {
-                var newUsers = prevState.users;
-                delete newUsers[discUserId]
-                return{
-                    users: newUsers
-                }
-            })
+            const updatedUsers = Object.fromEntries(
+                Object.entries(this.state.users).filter(
+                    ([userId, ]) =>  userId !== discUserId
+                )
+            );
+
+            // Repaint avatars on map with `updatedUsers`, which exclude the
+            // user who just disconnected.
+            // TODO: code smell, DRY - this logic can be in its own function,
+            // e.g. `updateMap()`.
+
             var canvas = document.getElementById('map');
             var ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, this.state.containerWidth, this.state.containerHeight)
-                
-            for(var key in this.state.users){
+
+            for (const [x, y, color] of Object.values(updatedUsers)) {
                 ctx.beginPath();
-                ctx.fillStyle = this.state.users[key][2]
-                ctx.fillRect(this.state.users[key][0], this.state.users[key][1], this.state.avatarWidth, this.state.avatarHeight);
+                ctx.fillStyle = color
+                ctx.fillRect(x, y, this.state.avatarWidth, this.state.avatarHeight);
                 ctx.stroke();
-            }   
+            }
+            
+            this.setState({ users: updatedUsers });
         })
         var canvas = document.getElementById("map");
         var ctx = canvas.getContext("2d");
@@ -94,14 +110,25 @@ export default class Map extends React.Component {
         document.addEventListener('keydown', this.keydownHandler.bind(this))
         document.addEventListener('keyup', this.keyupHandler.bind(this))
         
-        setInterval(this.moving.bind(this), 33)
+        // setInterval(this.moving.bind(this), 33)
+        this.setState({
+            rafHandler: requestAnimationFrame(this.moving.bind(this))
+        });
 
+    }
+
+    componentWillUnmount() {
+        if (this.state.rafHandler !== undefined) {
+            cancelAnimationFrame(this.state.rafHandler);
+        }
     }
 
     //what happens when user is moving
     moving(){
         var canvas = document.getElementById("map");
         var ctx = canvas.getContext("2d");
+
+        // console.log('user:', this.state.users);
         
         if(this.state.moving){
             
@@ -193,7 +220,11 @@ export default class Map extends React.Component {
 
             //var base64ImageData = canvas.toDataURL("image/png");
             this.props.socket.emit("moving", this.state.room_id, userData);
-        }    
+        }
+
+        this.setState({
+            rafHandler: requestAnimationFrame(this.moving.bind(this))
+        });
     }
 
     //handle keydown event

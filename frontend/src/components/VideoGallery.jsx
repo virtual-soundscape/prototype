@@ -1,136 +1,115 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import Peer from "simple-peer"
-import io from 'socket.io-client'
+import styled from 'styled-components'
 
 function VideoGallery(props) {
-  
-  const [localId, setLocalId] = useState("")
-  const [stream, setStream] = useState()
-  const [receiving, setReceiving] = useState(false)
-  const [callerId, setCallerId] = useState("")
-  const [callerSignal, setCallerSignal] = useState()
-  const [accepted, setAccepted] = useState(false)
-  const [receiverId, setReceiverId] = useState("")
-  const [end, setEnd] = useState(false)
-  const [name, setName] = useState("")
+  const [remotes, setRemotes] = useState([]);
+  const [roomId, setRoomId] = useState(props.roomId);
 
-  const connectionRef = useRef()
+  const remotesRef = useRef([]);
 
+  const StyledVideo = styled.video`
+  height: 40%;
+  width: 50%;
+`;
+
+const Video = (props) => {
+  const ref = useRef();
+
+  useEffect(() => {
+      props.remote.on("stream", stream => {
+          ref.current.srcObject = stream;
+      })
+  }, []);
+
+  return (
+      <StyledVideo playsInline autoPlay ref={ref} />
+  );
+}
 
   useEffect(() => {
     navigator.mediaDevices.getUserMedia({video: true, audio: true})
     .then((stream) => {
-      setStream(stream)
       const localVideo = document.getElementById("localVideo")
       localVideo.srcObject = stream
-    })
+      props.socket.emit("newUser", roomId)
+      props.socket.on("allUsers", (users) => {
+        const remotes = [];
+        users.forEach((userId) => {
+          const remote = createRemote(userId, props.socket.id, stream)
+          remotesRef.current.push({
+            remoteId: userId,
+            remote,
+          })
+          remotes.push(remote);
+          
+        })
+        setRemotes(remotes)
+      })
 
-    props.socket.on("local", (id) => {
-      setLocalId(id)
-    })
+      props.socket.on("joinUser", (data) => {
+        const remote = addRemote(data.signal, data.callerId, stream)
+        remotesRef.current.push({
+          remoteId: data.callerId,
+          remote,
+        })
+        setRemotes((users) => [...users, remote])
+      })
 
-    props.socket.on("call", (data) => {
-      setReceiving(true)
-      setCallerId(data.caller)
-      setName(data.receiver)
-      setCallerSignal(data.signal)
+      props.socket.on("received returning signal", (data) => {
+        const item = remotesRef.current.find((r) => r.remoteId === data.id)
+        item.remote.signal(data.signal)
+      })
     })
   }, [])
 
-  const callUser = (id) => {
+  const createRemote = (user, callerId, stream) => {
+    console.log("creating")
     const peer = new Peer({
-      initiator: true,
-      trickle: false,
+      intiator: true,
+      trickle:false,
       stream: stream
     })
 
-    peer.on("signal", (data) => {
-      props.socket.emit("call", {
-        userToCall: id,
-        signalData: data,
-        caller: localId,
-        name: name
-      })
+    peer.on("signal", (signal) => {
+      props.socket.emit("sending signal", {user, callerId, signal})
     })
 
-    peer.on("stream", (stream) => {
-      console.log("getting")
-      const remoteVideo = document.getElementById("remoteVideo")
-      remoteVideo.srcObject = stream
-    })
+    return peer
 
-    props.socket.on("accepted", (signal) => {
-      setAccepted(true)
-      peer.signal(signal)
-    })
-
-    connectionRef.current = peer
   }
 
-  const answerCall = () => {
-    setAccepted(true)
+  const addRemote = (newSignal, callerId, stream) => {
+    console.log("adding")
     const peer = new Peer({
-      initiator: false,
-      trickle: false,
+      intiator: false,
+      trickle:false,
       stream: stream
     })
 
-    peer.on("signal", (data) => {
-      props.socket.emit("answer", {
-        signal: data,
-        to: callerId
-      })
+    peer.on("signal", (signal) => {
+      props.socket.emit("returning signal", { signal, callerId })
     })
 
-    peer.on("stream", (stream) => {
-      const remoteVideo = document.getElementById("remoteVideo")
-      remoteVideo.srcObject = stream
-    })
+    peer.signal(newSignal)
 
-    peer.signal(callerSignal)
-    connectionRef.current = peer
+    return peer
+
   }
 
-  const leaveCall = () => {
-    setEnd(true)
-    connectionRef.current.destroy()
-  }
-  
   return (
     <div>
-      <h2>remote</h2>
-      {accepted && !end ? <video autoPlay id="remoteVideo"></video> : null}
-      <h2>local</h2>
-      <video autoPlay muted id="localVideo"></video>
+      <StyledVideo autoPlay muted id="localVideo" width="75%"></StyledVideo>
+      {remotes.length > 0 ? remotes.map((remote, index) => {
+        return (
+          <Video key={index} id={index} remote={remote}></Video>
+        )
+      }) : null}
       <div>
-        <form>
-          <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)}/>
-        </form>
-          <button onClick={() =>  navigator.clipboard.writeText(localId)}>Copy Your ID</button>
-        <form>
-          <input type="text" placeholder="Who Do You Want To Call" value={receiverId} onChange={(e) => setReceiverId(e.target.value)}/>
-        </form>
+          
         <div>
-					{accepted && !end ? (
-						<button onClick={leaveCall}>
-							End Call
-						</button>
-					) : (
-						<button onClick={() => callUser(receiverId)}>
-							Call
-						</button>
-					)}
-				</div>
-        <div>
-				{receiving && !accepted ? (
-						<div>
-						<h1 >{name} is calling...</h1>
-						<button onClick={answerCall}>
-							Answer
-						</button>
-					</div>
-				) : null}
+        <button onClick={() =>  navigator.clipboard.writeText(roomId)}>Copy Room ID</button>
 			</div>
       </div>
     </div>
