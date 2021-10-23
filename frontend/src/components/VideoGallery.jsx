@@ -8,7 +8,19 @@ const StyledVideo = styled.video`
   width: 50%;
 `;
 
-function Video({ remote, id }) {
+function opacityForDistance(distance) {
+  const maxOpacity = 100;
+  const furthestDistance = 200;
+  console.log(distance);
+
+  return Math.max( (-maxOpacity / furthestDistance) * distance + maxOpacity, 0 );
+}
+
+function volumeForDistance(distance) {
+  return opacityForDistance(distance) / 100;
+}
+
+function Video({ remote, id, user }) {
   const videoDOMElementId = `remote-${id}`;
   useEffect(() => {
     remote.on("stream", stream => {
@@ -17,14 +29,33 @@ function Video({ remote, id }) {
     });
   }, []);
 
+  let opacity = 100;
+  if (user) {
+    const [x, y, color, distance] = user;
+    opacity = opacityForDistance(distance);
+  }
+
+  let volume = 1;
+  if (user) {
+    const [x, y, color, distance] = user;
+    volume = volumeForDistance(distance);
+  }
+
   return (
-    <div>
-      <video id={videoDOMElementId} playsInline autoPlay width="75%" />
+    <div class="">
+      {volume}
+      <video
+        id={videoDOMElementId}
+        playsInline
+        autoPlay
+        width="75%"
+        volume={volume}
+      />
     </div>
   );
 }
 
-function VideoGallery({ socket, roomId }) {
+function VideoGallery({ socket, roomId, users }) {
 
   const [remotes, setRemotes] = useState([]);
   const localStream = useRef();
@@ -141,9 +172,10 @@ function VideoGallery({ socket, roomId }) {
         width="75%"
       />
 
-      {remotes.map(({ remote }, index) => {
+      {remotes.map(({ remoteId, remote }, index) => {
+        const user = users[remoteId];
         return (
-          <Video key={index} id={index} remote={remote}></Video>
+          <Video key={index} id={index} remote={remote} user={user} />
         )
       })}
       <div>    
