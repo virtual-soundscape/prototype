@@ -36,6 +36,7 @@ function Room() {
 
   const webSocketIsReady = userId !== undefined && socketRef.current;
 
+  //users object is now available in the Room component
   const collectUsers = (users) => {
     setUsers(users);
   }
