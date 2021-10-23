@@ -102,7 +102,8 @@ export default class Map extends React.Component {
                 console.log(this.state.users)
 
         })
-        this.props.socket.on("userDisconnect", (discUserId) => {
+        this.props.socket.on("userExit", (discUserId) => {
+            console.log("user is disconnecting", discUserId)
             const updatedUsers = Object.fromEntries(
                 Object.entries(this.state.users).filter(
                     ([userId, ]) =>  userId !== discUserId
