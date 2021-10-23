@@ -18,7 +18,7 @@ function opacityForDistance(distance) {
       *
       (1 - (distance / furthestDistance) ** 2)
       ,
-      0
+      0.01
     )
   );
 }

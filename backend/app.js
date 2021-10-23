@@ -79,18 +79,18 @@ io.on("connection", (socket) => {
         io.to(data.callerId).emit('received returned signal', { signal: data.signal, id: socket.id });
     });
 
-    //End
-    socket.on("exit", (room_id) => {
-        socketIdToRoomId.delete(socket.id);
-        socket.io(room_id).emit("userDisconnect", socket.id)
-        socket.to(room_id).emit("disconnected")
-    })
+    // //End
+    // socket.on("exit", (room_id) => {
+    //     socketIdToRoomId.delete(socket.id);
+    //     socket.io(room_id).emit("userDisconnect", socket.id)
+    // })
     
     //disconnect
     socket.on("disconnect", () => {
         console.log("User Force Disconnected")
         const roomId = socketIdToRoomId.get(socket.id);
         io.to(roomId).emit("userDisconnect", socket.id);
+        io.to(roomId).emit("userExit", socket.id);
         socketIdToRoomId.delete(socket.id);
 
         if (users[roomId])
