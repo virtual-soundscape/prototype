@@ -8,8 +8,8 @@ const StyledVideo = styled.video`
   width: 50%;
 `;
 
-function Video({ remote, id }) {
-  const videoDOMElementId = `remote-${id}`;
+function Video({ remote, id, remoteId }) {
+  const videoDOMElementId = `${remoteId}`;
   useEffect(() => {
     remote.on("stream", stream => {
       console.log("Got remote stream", stream);
@@ -44,7 +44,7 @@ function VideoGallery({ socket, roomId }) {
 
     peer.on('error', err => {
       console.error(`Initiator error: ${err}`)
-    }) // <--- 
+    })
 
     return {
       remoteId,
@@ -64,7 +64,7 @@ function VideoGallery({ socket, roomId }) {
       socket.emit("returning signal", { signal, callerId })
     })
 
-    peer.on('error', err => console.error(`Answer-er error: ${err}`)) // <--- 
+    peer.on('error', err => console.error(`Answer-er error: ${err}`))
 
     peer.signal(newSignal)
 
@@ -99,10 +99,17 @@ function VideoGallery({ socket, roomId }) {
       item?.remote.signal(data.signal)
     });
 
+    socket.on("userDisconnect", (discUserId) => {
+      console.log("this is the disconnected user id", discUserId)
+      let feed = document.getElementById(discUserId)
+      feed.remove();
+    })
+
     return () => {
       socket.off("received returned signal");
       socket.off("joinUser");
       socket.off("allUsers");
+      socket.off("userDisconnect");
     }
   }, [remotes]);
 
@@ -139,9 +146,9 @@ function VideoGallery({ socket, roomId }) {
         className="w-100"
       />
 
-      {remotes.map(({ remote }, index) => {
+      {remotes.map(({ remote, remoteId }, index) => {
         return (
-          <Video key={index} id={index} remote={remote}></Video>
+          <Video key={index} id={index} remoteId={remoteId} remote={remote}></Video>
         )
       })}
       <div>    
