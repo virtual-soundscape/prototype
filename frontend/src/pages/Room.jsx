@@ -9,6 +9,10 @@ import io from 'socket.io-client';
 
 function Room() {
   const { id } = useParams();
+
+  const origin =  process.env.REACT_APP_PROXY ?? window.location.origin;
+  const endpoint = origin.replace(/^http/, 'ws');
+
   const [userId, setUserId] = useState();
   const [users, setUsers] = useState();
 
@@ -20,7 +24,7 @@ function Room() {
   // Only try connect when component mounts.
 
   useEffect(() => {
-    const socket = io.connect("http://localhost:8080");
+    const socket = io.connect(endpoint);
 
     // Attach receive handler before sending the 'newUser' message, so we know
     // how to handle the response.
