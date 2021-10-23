@@ -31,23 +31,27 @@ function Video({ remote, id, user }) {
     });
   }, []);
 
-  let opacity = 100;
-  if (user) {
-    const [x, y, color, distance] = user;
-    opacity = opacityForDistance(distance);
-  }
+  useEffect(() => {
+    let opacity = 100;
+    if (user) {
+      const [x, y, color, distance] = user;
+      opacity = opacityForDistance(distance);
+    }
+  
+    let volume = 1;
+    if (user) {
+      const [x, y, color, distance] = user;
+      volume = volumeForDistance(distance);
+    }
+  
+    if (videoRef.current) {
+      videoRef.current.volume = volume;
+    }
+  }, [user]);
 
-  let volume = 1;
-  if (user) {
-    const [x, y, color, distance] = user;
-    volume = volumeForDistance(distance);
-  }
-
-  videoRef.current.volume = volume;
 
   return (
     <div class="">
-      {volume}
       <video
         id={videoDOMElementId}
         playsInline
