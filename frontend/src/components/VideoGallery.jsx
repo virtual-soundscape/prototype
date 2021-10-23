@@ -8,7 +8,28 @@ const StyledVideo = styled.video`
   width: 50%;
 `;
 
-function Video({ remote, id, remoteId }) {
+function opacityForDistance(distance) {
+  const maxOpacity = 100;
+  const furthestDistance = 500;
+
+  return Math.sqrt(
+    Math.max(
+      maxOpacity ** 2
+      *
+      (1 - (distance / furthestDistance) ** 2)
+      ,
+      0
+    )
+  );
+}
+
+function volumeForDistance(distance) {
+  return opacityForDistance(distance) / 100;
+}
+
+function Video({ remote, remoteId, user }) {
+  const videoRef = useRef();
+
   const videoDOMElementId = `${remoteId}`;
   useEffect(() => {
     remote.on("stream", stream => {
@@ -17,12 +38,40 @@ function Video({ remote, id, remoteId }) {
     });
   }, []);
 
+  useEffect(() => {
+    let opacity = 100;
+    if (user) {
+      const [x, y, color, displayName, distance] = user;
+      opacity = opacityForDistance(distance);
+    }
+  
+    let volume = 1;
+    if (user) {
+      const [x, y, color, displayName, distance] = user;
+      volume = volumeForDistance(distance);
+    }
+  
+    if (videoRef.current) {
+      videoRef.current.volume = volume;
+    }
+  }, [user]);
+
+
   return (
-      <video id={videoDOMElementId} playsInline autoPlay className="w-100"/>
+    <div class="">
+      <video
+        id={videoDOMElementId}
+        playsInline
+        autoPlay
+        width="100%"
+        ref={videoRef}
+        controls
+      />
+    </div>
   );
 }
 
-function VideoGallery({ socket, roomId }) {
+function VideoGallery({ socket, roomId, users }) {
 
   const [remotes, setRemotes] = useState([]);
   const localStream = useRef();
@@ -138,7 +187,6 @@ function VideoGallery({ socket, roomId }) {
 
   return (
     <div>
-      {/* <StyledVideo autoPlay muted id="localVideo" width="75%"></StyledVideo> */}
       <video
         autoPlay
         muted 
@@ -146,16 +194,17 @@ function VideoGallery({ socket, roomId }) {
         className="w-100"
       />
 
-      {remotes.map(({ remote, remoteId }, index) => {
+      {remotes.map(({ remoteId, remote }, index) => {
+        const user = users[remoteId];
         return (
-          <Video key={index} id={index} remoteId={remoteId} remote={remote}></Video>
+          <Video key={index} id={index} remote={remote} remoteId={remoteId} user={user}/>
         )
       })}
       <div>    
         <button className="w-100 border-0" onClick={() =>  navigator.clipboard.writeText("https://virtual-soundscape.herokuapp.com/room/" + roomId)}>Share Room</button>
       </div>
       <div>    
-      <button className="mt-2 w-100 border-0" onClick={() => {window.location.href = "https://virtual-soundscape.herokuapp.com/"}}>Leave</button>
+      <button className="mt-2 w-100 border-0" onClick={() => {window.location.href = "https://virtual-soundscape.herokuapp.com/"}}>Disconnect</button>
       </div>
     </div>
   );
