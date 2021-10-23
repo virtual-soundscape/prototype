@@ -53,8 +53,8 @@ function Video({ remote, id, user }) {
         playsInline
         autoPlay
         width="75%"
-        volume={volume}
         ref={videoRef}
+        controls
       />
     </div>
   );
