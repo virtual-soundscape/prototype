@@ -2,6 +2,15 @@ const express = require("express");
 const http = require("http")
 const app = express();
 const server = http.createServer(app)
+const path = require('path');
+
+// Use Heroku port or 8080 if not defined.
+
+const PORT = process.env.PORT || 8080;
+
+// Default route should render client React app.
+
+app.use(express.static(path.join(__dirname, 'client')));
 
 const io = require("socket.io")(server, {
     cors: {
@@ -82,6 +91,6 @@ io.on("connection", (socket) => {
 })
 
 //Server
-server.listen(8080, () => {
+server.listen(PORT, () => {
     console.log("app listening on port 8080");
   });
