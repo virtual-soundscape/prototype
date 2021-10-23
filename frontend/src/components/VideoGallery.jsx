@@ -18,7 +18,9 @@ function Video({ remote, id }) {
   }, []);
 
   return (
+    <div>
       <video id={videoDOMElementId} playsInline autoPlay width="75%" />
+    </div>
   );
 }
 
@@ -138,11 +140,6 @@ function VideoGallery({ socket, roomId }) {
         id="localVideo"
         width="75%"
       />
-
-      <div>
-        <h1>Remotes</h1>
-        {JSON.stringify(remotes)}
-      </div>
 
       {remotes.map(({ remote }, index) => {
         return (
