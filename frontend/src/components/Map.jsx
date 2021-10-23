@@ -46,6 +46,26 @@ export default class Map extends React.Component {
 
     //virtual map and user setup
     componentDidMount(){
+        //when user goes online emit online and moving 
+        this.props.socket.emit("online", this.state.room_id)
+        this.props.socket.emit("moving", this.state.room_id, {
+            user_id: this.state.user_id,
+            x: this.state.x,
+            y: this.state.y,
+            avatarColor: this.state.avatarColor,
+            displayName: this.state.displayName
+        })
+        
+        this.props.socket.on("online", (socket_id) => {
+            var userData = {
+                user_id: this.state.user_id,
+                x: this.state.x,
+                y: this.state.y,
+                avatarColor: this.state.avatarColor,
+                displayName: this.state.displayName
+            }
+            this.props.socket.emit("user", socket_id, userData)
+        })
         this.props.socket.on("moving", (userData) => {
             console.log(`moving: ${userData}`);
                 
@@ -76,7 +96,7 @@ export default class Map extends React.Component {
 
                     ctx.font = this.state.font;
                     ctx.textAlign = "center";
-                    ctx.fillText(this.state.users[key][3], this.state.users[key][0] + this.avatarWidth/2, this.state.users[key][1] - 5)
+                    ctx.fillText(this.state.users[key][3], this.state.users[key][0] + this.state.avatarWidth/2, this.state.users[key][1] - 5)
                 }   
                 console.log(this.state.users)
 
