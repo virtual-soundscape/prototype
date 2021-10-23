@@ -15,6 +15,17 @@ const users = {};
 
 io.on("connection", (socket) => {
     socket.emit("local", socket.id)
+
+    socket.on("getAllUsers", (roomId) => {
+        // Precondition: `roomId` exists.
+
+        const existingUsersExceptSelf = Array.from(users[roomId]).filter(
+            id => id !== socket.id
+        );
+
+        socket.emit("allUsers", existingUsersExceptSelf);
+    });
+
     socket.on("newUser", (room_id) => {
         socketIdToRoomId.set(socket.id, room_id);
         socket.join(room_id)
@@ -24,14 +35,15 @@ io.on("connection", (socket) => {
                 socket.emit("room full")
                 return
             }
-            users[room_id].push(socket.id);
+
+            users[room_id].add(socket.id);
         } else {
-            users[room_id] = [socket.id];
+            users[room_id] = new Set([socket.id]);
         }
 
-        const existingUsers = users[room_id].filter((id) => id !== socket.id)
-        console.log("existinUsers", existingUsers)
-        socket.emit("allUsers", existingUsers)
+        // const existingUsers = users[room_id].filter((id) => id !== socket.id)
+        // console.log("existinUsers", existingUsers)
+        // socket.emit("allUsers", existingUsers)
     });
 
     //Moving
@@ -46,7 +58,7 @@ io.on("connection", (socket) => {
 
     //Returning Signal
     socket.on("returning signal", (data) => {
-        io.to(data.callerId).emit('receiving returned signal', { signal: data.signal, id: socket.id });
+        io.to(data.callerId).emit('received returned signal', { signal: data.signal, id: socket.id });
     });
 
     //End
@@ -62,6 +74,9 @@ io.on("connection", (socket) => {
         const roomId = socketIdToRoomId.get(socket.id);
         io.to(roomId).emit("userDisconnect", socket.id);
         socketIdToRoomId.delete(socket.id);
+
+        if (users[roomId])
+            users[roomId].delete(socket.id);
     })
 
 })

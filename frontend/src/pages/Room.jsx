@@ -29,6 +29,10 @@ function Room() {
     socket.on("local", payload => {
       setUserId(payload);
     });
+
+    socket.on("allUsers", (data) => {
+      console.log('received all users in rom');
+    })
     socket.emit("newUser", id);
 
     socketRef.current = socket;
