@@ -55,6 +55,11 @@ export default class Map extends React.Component {
                         users: placeholder
                     }
                 })
+
+                //Pass the users  object up to Room component
+                this.props.collectUsers(this.state.users);
+
+                //Repaint avatars on map
                 var canvas = document.getElementById('map');
                 var ctx = canvas.getContext('2d');
                 ctx.clearRect(0, 0, this.state.containerWidth, this.state.containerHeight)
@@ -92,6 +97,8 @@ export default class Map extends React.Component {
             }
             
             this.setState({ users: updatedUsers });
+            //Pass the users object up to Room component
+            this.props.collectUsers(this.state.users);
         })
         var canvas = document.getElementById("map");
         var ctx = canvas.getContext("2d");
@@ -127,8 +134,6 @@ export default class Map extends React.Component {
     moving(){
         var canvas = document.getElementById("map");
         var ctx = canvas.getContext("2d");
-
-        // console.log('user:', this.state.users);
         
         if(this.state.moving){
             
@@ -203,6 +208,9 @@ export default class Map extends React.Component {
                 }
             })
 
+            //Pass the users  object up to Room component
+            this.props.collectUsers(this.state.users);
+
             for(var key in this.state.users){
                 ctx.beginPath();
                 ctx.fillStyle = this.state.users[key][2];
@@ -218,7 +226,6 @@ export default class Map extends React.Component {
                 avatarColor: this.state.avatarColor
             };
 
-            //var base64ImageData = canvas.toDataURL("image/png");
             this.props.socket.emit("moving", this.state.room_id, userData);
         }
 
