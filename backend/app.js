@@ -31,7 +31,7 @@ io.on("connection", (socket) => {
         }
         socketToRoom[socket.id] = room_id;
         const existingUsers = users[room_id].filter((id) => id !== socket.id)
-        console.log("existinUsers", existingUsers)
+        
         socket.emit("allUsers", existingUsers)
     });
 

@@ -43,7 +43,6 @@ const Video = (props) => {
             remote,
           })
           remotes.push(remote);
-          
         })
         setRemotes(remotes)
       })
@@ -65,7 +64,6 @@ const Video = (props) => {
   }, [])
 
   const createRemote = (user, callerId, stream) => {
-    console.log("creating")
     const peer = new Peer({
       intiator: true,
       trickle:false,
@@ -100,10 +98,10 @@ const Video = (props) => {
 
   return (
     <div>
-      <StyledVideo autoPlay muted id="localVideo" width="75%"></StyledVideo>
+      <video autoPlay muted id="localVideo" width="75%"></video>
       {remotes.length > 0 ? remotes.map((remote, index) => {
         return (
-          <Video key={index} id={index} remote={remote}></Video>
+          <video key={index} id={index} remote={remote}></video>
         )
       }) : null}
       <div>
