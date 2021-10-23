@@ -21,6 +21,8 @@ function volumeForDistance(distance) {
 }
 
 function Video({ remote, id, user }) {
+  const videoRef = useRef();
+
   const videoDOMElementId = `remote-${id}`;
   useEffect(() => {
     remote.on("stream", stream => {
@@ -41,6 +43,8 @@ function Video({ remote, id, user }) {
     volume = volumeForDistance(distance);
   }
 
+  videoRef.current.volume = volume;
+
   return (
     <div class="">
       {volume}
@@ -50,6 +54,7 @@ function Video({ remote, id, user }) {
         autoPlay
         width="75%"
         volume={volume}
+        ref={videoRef}
       />
     </div>
   );
