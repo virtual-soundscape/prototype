@@ -24,7 +24,7 @@ const users = {};
 
 io.on("connection", (socket) => {
     socket.emit("local", socket.id)
-
+    
     socket.on("getAllUsers", (roomId) => {
         // Precondition: `roomId` exists.
 
@@ -55,8 +55,17 @@ io.on("connection", (socket) => {
         // socket.emit("allUsers", existingUsers)
     });
 
+    //when user goes online
+    socket.on("online", (room_id) => {
+        socket.to(room_id).emit('online', socket.id)
+    })
+    socket.on("user", (socket_id, userData) => {
+        socket.to(socket_id).emit("moving", userData)
+    })
+
     //Moving
     socket.on('moving', (room_id, userData)=> {
+        console.log("MOVING")
         socket.to(room_id).emit('moving', userData);
     })
     

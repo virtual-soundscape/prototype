@@ -12,9 +12,11 @@ export default class Map extends React.Component {
             y: 250,
         };
         const avatarColor = `#${Math.floor(Math.random()*16777215).toString(16)}`;
+        const displayName = this.props.displayName;
 
         this.state = {
             user_id: this.props.userId,
+            displayName,
             room_id: this.props.roomId,
             moving: false,
             direction: 'N',
@@ -24,11 +26,13 @@ export default class Map extends React.Component {
             avatarColor,
             avatarWidth: 10,
             avatarHeight: 10,
+            font: "12px Arial",
             users:{
                 [this.props.userId]: [
                     initialCoordinates.x,
                     initialCoordinates.y,
                     avatarColor,
+                    displayName
                 ]
             },
 
@@ -43,6 +47,26 @@ export default class Map extends React.Component {
 
     //virtual map and user setup
     componentDidMount(){
+        //when user goes online emit online and moving 
+        this.props.socket.emit("online", this.state.room_id)
+        this.props.socket.emit("moving", this.state.room_id, {
+            user_id: this.state.user_id,
+            x: this.state.x,
+            y: this.state.y,
+            avatarColor: this.state.avatarColor,
+            displayName: this.state.displayName
+        })
+        
+        this.props.socket.on("online", (socket_id) => {
+            var userData = {
+                user_id: this.state.user_id,
+                x: this.state.x,
+                y: this.state.y,
+                avatarColor: this.state.avatarColor,
+                displayName: this.state.displayName
+            }
+            this.props.socket.emit("user", socket_id, userData)
+        })
         this.props.socket.on("moving", (userData) => {
             console.log(`moving: ${userData}`);
                 
@@ -51,7 +75,7 @@ export default class Map extends React.Component {
                         ...prevState.users
                     };
                     var distance = Math.sqrt((prevState.x - userData.x)**2 + (prevState.y - userData.y)**2);
-                    placeholder[userData.user_id] = [userData.x, userData.y, userData.avatarColor, distance];
+                    placeholder[userData.user_id] = [userData.x, userData.y, userData.avatarColor, userData.displayName, distance];
                     return {
                         users: placeholder
                     }
@@ -70,6 +94,10 @@ export default class Map extends React.Component {
                     ctx.fillStyle = this.state.users[key][2]
                     ctx.fillRect(this.state.users[key][0], this.state.users[key][1], this.state.avatarWidth, this.state.avatarHeight);
                     ctx.stroke();
+
+                    ctx.font = this.state.font;
+                    ctx.textAlign = "center";
+                    ctx.fillText(this.state.users[key][3], this.state.users[key][0] + this.state.avatarWidth/2, this.state.users[key][1] - 5)
                 }   
                 console.log(this.state.users)
 
@@ -90,11 +118,15 @@ export default class Map extends React.Component {
             var ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, this.state.containerWidth, this.state.containerHeight)
 
-            for (const [x, y, color] of Object.values(updatedUsers)) {
+            for (const [x, y, color, displayName] of Object.values(updatedUsers)) {
                 ctx.beginPath();
                 ctx.fillStyle = color
                 ctx.fillRect(x, y, this.state.avatarWidth, this.state.avatarHeight);
                 ctx.stroke();
+
+                ctx.font = this.state.font;
+                ctx.textAlign = "center";
+                ctx.fillText(displayName, x + this.state.avatarWidth/2, y - 5)
             }
             
             this.setState({ users: updatedUsers });
@@ -109,6 +141,10 @@ export default class Map extends React.Component {
         ctx.fillStyle = this.state.avatarColor;
         ctx.fillRect(this.state.x, this.state.y, this.state.avatarWidth, this.state.avatarHeight);
         ctx.stroke();
+
+        ctx.font = this.state.font;
+        ctx.textAlign = "center";
+        ctx.fillText(this.state.displayName, this.state.x + this.state.avatarWidth/2, this.state.y - 5)
         this.init()
     }
 
@@ -190,7 +226,7 @@ export default class Map extends React.Component {
                 var placeholder = {
                     ...prevState.users
                 };
-                placeholder[prevState.user_id] = [prevState.x, prevState.y, prevState.avatarColor];
+                placeholder[prevState.user_id] = [prevState.x, prevState.y, prevState.avatarColor, prevState.displayName];
                 return {
                     users: placeholder
                 }
@@ -202,7 +238,7 @@ export default class Map extends React.Component {
                 };
                 for (var key in placeholder){
                     var distance = Math.sqrt((prevState.x - placeholder[key][0])**2 + (prevState.y - placeholder[key][1])**2)
-                    placeholder[key] = [placeholder[key][0], placeholder[key][1], placeholder[key][2], distance];
+                    placeholder[key] = [placeholder[key][0], placeholder[key][1], placeholder[key][2], placeholder[key][3], distance];
                 }
                 return {
                     users: placeholder
@@ -217,6 +253,10 @@ export default class Map extends React.Component {
                 ctx.fillStyle = this.state.users[key][2];
                 ctx.fillRect(this.state.users[key][0], this.state.users[key][1], this.state.avatarWidth, this.state.avatarHeight);
                 ctx.stroke();
+                
+                ctx.font = this.state.font;
+                ctx.textAlign = "center";
+                ctx.fillText(this.state.users[key][3], this.state.users[key][0] + this.state.avatarWidth/2, this.state.users[key][1] - 5)
             }
             console.log(this.state.users)
 
@@ -224,7 +264,8 @@ export default class Map extends React.Component {
                 user_id: this.state.user_id,
                 x: this.state.x,
                 y: this.state.y,
-                avatarColor: this.state.avatarColor
+                avatarColor: this.state.avatarColor,
+                displayName: this.state.displayName
             };
 
             this.props.socket.emit("moving", this.state.room_id, userData);

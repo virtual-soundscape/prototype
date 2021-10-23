@@ -8,7 +8,7 @@ import io from 'socket.io-client';
 
 
 function Room() {
-  const { id } = useParams();
+  const { id, displayName } = useParams();
 
   const origin =  process.env.REACT_APP_PROXY ?? window.location.origin;
   const endpoint = origin.replace(/^http/, 'ws');
@@ -56,11 +56,11 @@ function Room() {
         <div className="row">
           <div className="col-10">
             {webSocketIsReady &&
-              <Map socket={socketRef.current} roomId={id} userId={userId} collectUsers={(users) => collectUsers(users)} />}
+              <Map socket={socketRef.current} roomId={id} userId={userId} displayName={displayName} collectUsers={(users) => collectUsers(users)} />}
           </div>
           <div className="col-2">
             {webSocketIsReady &&
-              <VideoGallery socket={socketRef.current} roomId={id} users={users} />
+              <VideoGallery socket={socketRef.current} roomId={id} displayName={displayName} users={users}  />
             }
           </div>
         </div>

@@ -10,10 +10,17 @@ const StyledVideo = styled.video`
 
 function opacityForDistance(distance) {
   const maxOpacity = 100;
-  const furthestDistance = 200;
-  console.log(distance);
+  const furthestDistance = 500;
 
-  return Math.max( (-maxOpacity / furthestDistance) * distance + maxOpacity, 0 );
+  return Math.sqrt(
+    Math.max(
+      maxOpacity ** 2
+      *
+      (1 - (distance / furthestDistance) ** 2)
+      ,
+      0
+    )
+  );
 }
 
 function volumeForDistance(distance) {
@@ -34,13 +41,13 @@ function Video({ remote, id, user }) {
   useEffect(() => {
     let opacity = 100;
     if (user) {
-      const [x, y, color, distance] = user;
+      const [x, y, color, displayName, distance] = user;
       opacity = opacityForDistance(distance);
     }
   
     let volume = 1;
     if (user) {
-      const [x, y, color, distance] = user;
+      const [x, y, color, displayName, distance] = user;
       volume = volumeForDistance(distance);
     }
   
