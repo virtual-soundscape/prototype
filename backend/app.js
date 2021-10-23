@@ -71,7 +71,7 @@ io.on("connection", (socket) => {
     
     //Sending Signal
     socket.on("sending signal", data => {
-        io.to(data.user).emit('joinUser', { signal: data.signal, callerId: data.callerId });
+        io.to(data.user).emit('joinUser', { signal: data.signal, callerId: data.callerId, userId: data.user });
     });
 
     //Returning Signal

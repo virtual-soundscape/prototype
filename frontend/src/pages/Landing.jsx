@@ -21,7 +21,7 @@ function Landing() {
                 <tbody>
                 <tr>
                     <td>
-                        <input value={roomId} onChange={(e) => setRoomId(e.target.value)} type="text" placeholder="enter room id"/>
+                        <input value={roomId} onChange={(e) => setRoomId(e.target.value)} type="text" placeholder="room id"/>
                     </td>
                     <td>
                         +
