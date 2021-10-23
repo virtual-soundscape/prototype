@@ -10,7 +10,7 @@ const StyledVideo = styled.video`
 
 function opacityForDistance(distance) {
   const maxOpacity = 100;
-  const furthestDistance = 500;
+  const furthestDistance = 1000;
 
   return Math.sqrt(
     Math.max(
