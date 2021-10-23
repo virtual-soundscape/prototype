@@ -39,10 +39,11 @@ export default class Map extends React.Component {
             // Handler returned by `requestAnimationFrame`
             rafHandler: undefined,
         }
-        
     }
-        
-    
+
+    getSnapshotBeforeUpdate() {
+        this.props.collectUsers(this.state.users)
+    }
 
     //virtual map and user setup
     componentDidMount(){

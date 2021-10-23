@@ -1,0 +1,15 @@
+{
+  "name": "virtual-soundscape",
+  "version": "1.0.0",
+  "description": "Prototype of Virtual Soundscape",
+  "main": "backend/app.js",
+  "scripts": {
+    "start": "node backend/app.js",
+    "build": "cd backend && npm ci && cd ../frontend && npm ci && npm run build && mv build ../backend/client"
+  },
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": "12.x"
+  }
+}
