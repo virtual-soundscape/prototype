@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom'
 function Landing() {
 
     const [roomId, setRoomId] = useState("");
-
+    const [displayName, setDisplayName] = useState("");
 
   return (
     <div className="container-fluid d-flex landing">
@@ -21,19 +21,19 @@ function Landing() {
                 <tbody>
                 <tr>
                     <td>
-                        <input value={roomId} onChange={(e) => setRoomId(e.target.value)} type="text" placeholder="enter room id"/>
+                        <input value={roomId} onChange={(e) => setRoomId(e.target.value)} type="text" placeholder="room id"/>
                     </td>
                     <td>
                         +
                     </td>
                     <td>
-                        <input type="text" placeholder="enter display name" className="ml-5"/>
+                        <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} type="text" placeholder="display name" className="ml-5"/>
                     </td>
                     <td>
                         =
                     </td>
                     <td>
-                        <Link to={`/room/${roomId}`} className="link">Enter</Link>
+                        <Link to={`/room/${roomId}/${displayName}`} className="link">ENTER</Link>
                     </td>
                 </tr>
                 </tbody>

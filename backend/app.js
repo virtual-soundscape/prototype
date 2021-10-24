@@ -24,7 +24,7 @@ const users = {};
 
 io.on("connection", (socket) => {
     socket.emit("local", socket.id)
-
+    
     socket.on("getAllUsers", (roomId) => {
         // Precondition: `roomId` exists.
 
@@ -55,14 +55,23 @@ io.on("connection", (socket) => {
         // socket.emit("allUsers", existingUsers)
     });
 
+    //when user goes online
+    socket.on("online", (room_id) => {
+        socket.to(room_id).emit('online', socket.id)
+    })
+    socket.on("user", (socket_id, userData) => {
+        socket.to(socket_id).emit("moving", userData)
+    })
+
     //Moving
     socket.on('moving', (room_id, userData)=> {
+        console.log("MOVING")
         socket.to(room_id).emit('moving', userData);
     })
     
     //Sending Signal
     socket.on("sending signal", data => {
-        io.to(data.user).emit('joinUser', { signal: data.signal, callerId: data.callerId });
+        io.to(data.user).emit('joinUser', { signal: data.signal, callerId: data.callerId, userId: data.user });
     });
 
     //Returning Signal
@@ -70,18 +79,18 @@ io.on("connection", (socket) => {
         io.to(data.callerId).emit('received returned signal', { signal: data.signal, id: socket.id });
     });
 
-    //End
-    socket.on("exit", (room_id) => {
-        socketIdToRoomId.delete(socket.id);
-        socket.io(room_id).emit("userDisconnect", socket.id)
-        socket.to(room_id).emit("disconnected")
-    })
+    // //End
+    // socket.on("exit", (room_id) => {
+    //     socketIdToRoomId.delete(socket.id);
+    //     socket.io(room_id).emit("userDisconnect", socket.id)
+    // })
     
     //disconnect
     socket.on("disconnect", () => {
         console.log("User Force Disconnected")
         const roomId = socketIdToRoomId.get(socket.id);
         io.to(roomId).emit("userDisconnect", socket.id);
+        io.to(roomId).emit("userExit", socket.id);
         socketIdToRoomId.delete(socket.id);
 
         if (users[roomId])
